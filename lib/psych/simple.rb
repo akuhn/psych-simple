@@ -4,6 +4,9 @@ module Psych
 
   # Load yaml in to a ruby data structure.
   #
+  # If multiple documents are provided, the object contained in the first
+  # document will be returned.
+  #
   # This function is 2-5x faster as compared to Psych::load but supports a
   # simplified (and safe) data format only. All values are deserialized as
   # strings. Anchors and tags are not supported, and thus ruby objects are
@@ -15,33 +18,31 @@ module Psych
   #   otherwise strings are returned (defaults to false)
   #
   def self.simple_load(yaml, options = nil)
-    parser = Parser.new(SimpleHandler.new(options))
+    parser = Parser.new(SimpleHandler.new(options) { |document| return document })
     parser.parse yaml, options && options[:filename]
-    parser.handler.document
+    return nil
   end
 
   class SimpleHandler
-    attr_reader :document
-
-    def initialize(options = nil)
+    def initialize(options, &continuation)
       @symbolize_names = options && options[:symbolize_names]
+      @continuation = continuation
     end
 
     def start_stream(encoding)
-      @stack = Array.new
     end
 
     def end_stream
-      raise unless @stack.empty?
     end
 
     def start_document(version, tag_directives, implicit)
       raise unless tag_directives.empty?
-      @stack.push Array.new
+      @stack = [[]]
     end
 
     def end_document(implicit)
-      @document = @stack.pop.last
+      @continuation.yield @stack.first.first
+      @stack = nil
     end
 
     def start_mapping(anchor, tag, implicit, style)

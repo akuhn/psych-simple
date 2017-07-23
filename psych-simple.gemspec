@@ -3,11 +3,11 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "psych-simple"
-  spec.version       = "2.0.0"
+  spec.version       = "2.1.0"
   spec.authors       = ["Adrian Kuhn"]
   spec.email         = ["adrian.kuhn@airbnb.com"]
 
-  spec.summary       = %q{Parse yaml 5x faster, simplified file format.}
+  spec.summary       = %q{Parse yaml 2-5x faster, simplified file format.}
   spec.homepage      = "https://github.com/akuhn/psych-simple"
 
   spec.files         = `git ls-files -z`.split("\x0").grep(%r{^(lib)/})

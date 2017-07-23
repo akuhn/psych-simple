@@ -20,6 +20,11 @@ RSpec.describe "Psych.simple_load" do
     )
   end
 
+  it "should return the first document" do
+    document = Psych.simple_load(%{--- foo\n--- bar})
+    expect(document).to eq 'foo'
+  end
+
   it "should support option to symbolize names" do
     document = Psych.simple_load(yaml, symbolize_names: true)
     expect(document).to eq(
