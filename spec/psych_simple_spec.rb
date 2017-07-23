@@ -20,6 +20,14 @@ RSpec.describe "Psych.simple_load" do
     )
   end
 
+  it "should support option to symbolize names" do
+    document = Psych.simple_load(yaml, symbolize_names: true)
+    expect(document).to eq(
+      message: 'Hello, worlds!',
+      colors: %w(babu kazan rausch),
+    )
+  end
+
   it "should parse empty document" do
     document = Psych.simple_load("")
     expect(document).to eq nil

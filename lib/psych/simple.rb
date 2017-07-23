@@ -1,14 +1,31 @@
 require 'psych'
 
 module Psych
-  def self.simple_load(yaml, filename = nil)
-    parser = Parser.new(SimpleHandler.new)
-    parser.parse yaml, filename
+
+  # Load yaml in to a ruby data structure.
+  #
+  # This function is 2-5x faster as compared to Psych::load but supports a
+  # simplified (and safe) data format only. All values are deserialized as
+  # strings. Anchors and tags are not supported, and thus ruby objects are
+  # not supported either.
+  #
+  # Options can have the following keys,
+  # - filename: used in the exception message (defaults to nil)
+  # - symbolize_names: if true return symbols as keys in a yaml mapping,
+  #   otherwise strings are returned (defaults to false)
+  #
+  def self.simple_load(yaml, options = nil)
+    parser = Parser.new(SimpleHandler.new(options))
+    parser.parse yaml, options && options[:filename]
     parser.handler.document
   end
 
   class SimpleHandler
     attr_reader :document
+
+    def initialize(options = nil)
+      @symbolize_names = options && options[:symbolize_names]
+    end
 
     def start_stream(encoding)
       @stack = Array.new
@@ -33,7 +50,11 @@ module Psych
     end
 
     def end_mapping
-      mapping = Hash[*@stack.pop]
+      mapping = Hash.new
+      @stack.pop.each_slice(2) do |name, value|
+        name = name.to_sym if @symbolize_names
+        mapping[name] = value
+      end
       @stack.last << mapping
     end
 
