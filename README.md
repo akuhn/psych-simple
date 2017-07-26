@@ -1,6 +1,6 @@
 # psych-simple
 
-Parse yaml 5x faster, using a simplified (and safe) file format
+Parse yaml 2-5x faster, using a simplified (and safe) file format
 
 - All values are deserialized as strings
 - Anchors and tags are not accepted
